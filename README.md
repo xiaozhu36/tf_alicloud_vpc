@@ -1,12 +1,13 @@
-Alicloud VPC And VSwitch Terraform Module
+Alicloud VPC, VSwitch and Route Entry Terraform Module
 tf_alicloud_vpc
 =========================================
 
-A terraform module to provide an Alicloud VPC cluster.
+A terraform module to provide an Alicloud VPC, VSwitch and configure route entry for it.
 
-- The module contains one VPC and several VSwitches.
+- The module contains one VPC, several VSwitches and several custom route entries.
 - If VPC is not specified, the module will launch a new one using its own parameters.
-- The number of VSwitch depends on the length of the parameter `vswitch_cidr`.
+- The number of VSwitch depends on the length of the parameter `vswitch_cidrs`.
+- The number of custom route entry depends on the length of the parameter `destination_cidrs`
 - If you have no idea availability zones, the module will provide default values according to `cpu_core_count` and `memory_size`.
 
 
@@ -14,7 +15,7 @@ A terraform module to provide an Alicloud VPC cluster.
 Module Input Variables
 ----------------------
 
-The module aim to create a VPC cluster. Its input variables contains VPC, VSwitch and retrieving availability zones.
+The module aim to build a VPC environment. Its input variables contains VPC, VSwitch and Route Entry.
 
 #### Common Input Vairables
 
@@ -39,6 +40,13 @@ The module aim to create a VPC cluster. Its input variables contains VPC, VSwitc
 - `vswitch_description` - VSwitch description used to describe new vswitch - default to "New VSwitch created by Terrafrom module tf-alicloud-vpc-cluster."
 
 
+#### Custom Route Entry Input Variables
+
+- `route_table_id` - Route table ID of virtual router in the specified VPC. If `vpc_id` is not specified, you must specify `route_table_id` when to launch new route entries.
+- `destination_cidrs` - List of destination CIDR blocks of virtual route table in the specified VPC
+- `nexthop_ids` -List of ECS instance IDs as route entry's next hop in the specified VPC
+
+
 Usage
 -----
 You can use this in your terraform template with the following steps.
@@ -46,7 +54,7 @@ You can use this in your terraform template with the following steps.
 1. Adding a module resource to your template, e.g. main.tf
 
        module "tf-vpc-cluster" {
-          source = "github.com/terraform-community-modules/tf-alicloud-ecs-instance"
+          source = "github.com/terraform-community-modules/tf_alicloud_vpc"
 
           alicloud_access_key = "${var.alicloud_access_key}"
           alicloud_secret_key = "${var.alicloud_secret_key}"
@@ -59,19 +67,25 @@ You can use this in your terraform template with the following steps.
              "172.16.2.0/24"
           ]
 
+          destination_cidrs = "${var.destination_cidrs}"
+          nexthop_ids = "${var.server_ids}"
+
         }
 
 2. Setting values for the following variables, either through terraform.tfvars or environment variables or -var arguments on the CLI
 
 - alicloud_access_key
 - alicloud_secret_key
+- destination_cidrs
+- server_ids
 
 Module Output Variables
 -----------------------
 
 - vpc_id - A new VPC ID
 - vswitch_ids - A list of new VSwitch IDs
-- availability_zones - A list of zone IDs in which new vswitches
+- router_id - The virtual router ID in which new route entries are launched
+- route_table_id - The route table ID in which new route entries are launched
 
 Authors
 -------

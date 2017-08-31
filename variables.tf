@@ -66,3 +66,19 @@ variable "vswitch_description" {
   description = "The vswitch description used to launch several new vswitch."
   default = "New VSwitch created by Terrafrom module tf-alicloud-vpc-cluster."
 }
+
+// According to the vswitch cidr blocks to launch several vswitches
+variable "route_table_id" {
+  description = "The route table ID of virtual router in the specified VPC."
+  default = ""
+}
+variable "destination_cidrs" {
+  description = "List of destination CIDR block of virtual router in the specified VPC."
+  type = "list"
+  default = []
+}
+variable "nexthop_ids" {
+  description = "List of next hop instance IDs of virtual router in the specified VPC."
+  type = "list"
+  default = []
+}
